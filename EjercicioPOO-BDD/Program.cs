@@ -9,8 +9,8 @@ namespace EjercicioPOO_BDD
         {
             
 
-            List<CAceptado> aceptados = new List<CAceptado>();
-            List<CRechazado> rechazos = new List<CRechazado>();
+           /// List<CAceptado> aceptados = new List<CAceptado>();
+            //List<CRechazado> rechazos = new List<CRechazado>();
 
             string StringConnection = @"Data Source=localhost;Initial Catalog=EjecicioPOO+BDD;Integrated Security=True;Encrypt=False;Trust Server Certificate=True";
 
@@ -18,15 +18,13 @@ namespace EjercicioPOO_BDD
 
             var context = new DataBaseContext(options);
 
-            var ResultFechaProceso = context.Parametria.FirstOrDefault();
+            /*var ResultFechaProceso = context.Parametria.FirstOrDefault();
             string fechaFormat = "";
             if (ResultFechaProceso != null )
             {
                 DateTime fecha_proceso = ResultFechaProceso.Fecha_Proceso.Date;
                 fechaFormat = fecha_proceso.ToString("yyyy-MM-dd");
             }
-
-            
 
             try
             {
@@ -41,23 +39,23 @@ namespace EjercicioPOO_BDD
                 string fechaConFormato;
                 string motivo;
                 int I = 1;
-                CAceptado aceptado = new CAceptado();
-                CRechazado rechazado = new CRechazado();
+                
 
 
 
                 foreach (string dat in  data) 
                 {
                     fecha = dat.Substring(0, 8);
-                    codigo = dat.Substring(8, 3);
+                    codigo = dat.Substring(8, 3).Trim();
                     venta = float.Parse(dat.Substring (11,11));
                     empresa = dat.Substring (22);
 
                     fechaConFormato = $"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}";
 
-                    
+                    CAceptado aceptado = new CAceptado();
+                    CRechazado rechazado = new CRechazado();
 
-                    if (codigo != null)
+                    if (codigo != null && codigo != "")
                     {
                         if (fechaConFormato.Equals(fechaFormat))
                         {
@@ -82,21 +80,21 @@ namespace EjercicioPOO_BDD
                             }
                             else
                             {
-                                motivo = $"El tamaño de la empresa no esta correctamente especificado por la letra S o N {I}";
+                                motivo = $"El tamaño de la empresa no esta correctamente especificado por la letra S o N en la linea: {I}";
                                 rechazado.Motivo = motivo;
                                 rechazos.Add(rechazado);
                             }
                         }
                         else
                         {
-                            motivo = $"La fecha no coincide con la parametrizada {I}";
+                            motivo = $"La fecha no coincide con la parametrizada en la linea: {I}";
                             rechazado.Motivo = motivo;
                             rechazos.Add(rechazado);
                         }
                     }
                     else
                     {
-                        motivo = $"No se encontro un codigo dentro de la linea {I}";
+                        motivo = $"No se encontro un codigo dentro de la linea: {I}";
                         rechazado.Motivo = motivo;
                         rechazos.Add(rechazado);
 
@@ -108,17 +106,16 @@ namespace EjercicioPOO_BDD
                 foreach(CAceptado acep in aceptados) 
                 {
 
-                    Console.WriteLine($"{acep.FechaInforme}\n{acep.CodigoVenderdor}\n{acep.Venta}\n{acep.TamañoEmpresa}\n\n");
-                    Console.ReadKey();
-                    //context.Aceptado.Add(acep);
-                    //context.SaveChanges();
+                    //Console.WriteLine($"{acep.FechaInforme}\n{acep.CodigoVenderdor}\n{acep.Venta}\n{acep.TamañoEmpresa}\n\n");
+                    //Console.ReadKey();
+                    context.Aceptado.Add(acep);
                 }
 
-                //foreach (CRechazado rech in  rechazos) 
-                //{ 
-                //    context.Rechazado.Add(rech);
-                //}
-                //context.SaveChanges();
+                foreach (CRechazado rech in  rechazos) 
+                { 
+                   context.Rechazado.Add(rech);
+                }
+                context.SaveChanges();
             }
             catch(IOException ex)
             {
@@ -128,7 +125,46 @@ namespace EjercicioPOO_BDD
             {
                 Console.WriteLine("Hubo un error general");
             }
-           
+            */
+            //PUNTO 4 LISTAR VENDEDORES > 100000
+            var ListaVendedores4 = context.Aceptado.Where(aceptado => aceptado.Venta > 100000.0F)
+                                                  .GroupBy(aceptado => aceptado.CodigoVendedor)
+                                                  .Select(group => new
+                                                  {
+                                                      CodigoVendedor = group.Key,
+                                                      TotalVentas = group.Sum(aceptado => aceptado.Venta)
+                                                  })
+                                                  .ToList();
+
+              foreach (var vendedor in ListaVendedores4)
+              {
+                  Console.WriteLine($"El vendedor {vendedor.CodigoVendedor} vendió {vendedor.TotalVentas:C}");
+              }
+              Console.ReadKey();
+
+            //PUNTO 5 LISTAR VENDEDORES < 100000
+            var ListaVendedores5 = context.Aceptado
+                                                 .GroupBy(aceptado => aceptado.CodigoVendedor)
+                                                 .Select(group => new
+                                                 {
+                                                     CodigoVendedor = group.Key,
+                                                     TotalVentas = group.Sum(aceptado => aceptado.Venta)
+                                                 })
+                                                 .Where(resultado => resultado.TotalVentas < 100000.0F)
+                                         
+                                                 .ToList();
+
+            foreach (var vendedor in ListaVendedores5)
+            {
+                Console.WriteLine($"El vendedor {vendedor.CodigoVendedor} vendió {vendedor.TotalVentas:C}");
+            }
+            Console.ReadKey();
+
+            //PUNTO 6 LISTAR VENDEDORES CON ALMENOS UNA EMPRESA GRANDE EN SUS VENTAS
+
+
+
+
         }
     }
 }

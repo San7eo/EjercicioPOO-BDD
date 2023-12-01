@@ -51,7 +51,7 @@ namespace EjercicioPOO_BDD.Repository
                 entity.Property(acep => acep.FechaInforme)
                       .HasColumnName("fecha_informe");
 
-                entity.Property(acep => acep.CodigoVenderdor)
+                entity.Property(acep => acep.CodigoVendedor)
                       .HasColumnName("codigo_vendedor");
 
                 entity.Property(acep => acep.Venta)
@@ -68,13 +68,13 @@ namespace EjercicioPOO_BDD.Repository
             {
                 entity.ToTable("rechazos");
 
-                entity.Property(aceptado => aceptado.IdRechazado)
+                entity.Property(recha => recha.IdRechazado)
                        .HasColumnName("id");
 
-                entity.Property(acep => acep.Motivo)
+                entity.Property(recha => recha.Motivo)
                       .HasColumnName("informe");
 
-                entity.HasKey(aceptado => aceptado.IdRechazado);
+                entity.HasKey(recha => recha.IdRechazado);
 
             });
 

@@ -17,3 +17,18 @@ id int identity primary key not null,
 informe varchar(100) not null,
 )
 
+select * from parametria
+
+select * from rechazos
+
+select * from ventas_mensuales
+
+select codigo_vendedor, sum(venta) as TotalVentas
+from ventas_mensuales
+group by codigo_vendedor
+having  sum(venta) > 100000
+
+select codigo_vendedor, sum(venta) as TotalVentas
+from ventas_mensuales
+where codigo_vendedor = 123
+group by codigo_vendedor

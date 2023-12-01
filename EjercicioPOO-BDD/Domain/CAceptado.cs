@@ -11,7 +11,7 @@ namespace EjercicioPOO_BDD.Domain
         public int IdAceptado { get; set; }
         public DateTime FechaInforme {  get; set; }
 
-        public string CodigoVenderdor { get; set; } = string.Empty;
+        public string CodigoVendedor { get; set; } = string.Empty;
 
         public double Venta {  get; set; }
 
