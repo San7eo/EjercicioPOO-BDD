@@ -1,6 +1,7 @@
 ﻿using EjercicioPOO_BDD.Domain;
 using EjercicioPOO_BDD.Repository;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 namespace EjercicioPOO_BDD
 {
     internal class Program
@@ -8,24 +9,24 @@ namespace EjercicioPOO_BDD
         static void Main(string[] args)
         {
             
+           
+           //List<CAceptado> aceptados = new List<CAceptado>();
+           //List<CRechazado> rechazos = new List<CRechazado>();
 
-           /// List<CAceptado> aceptados = new List<CAceptado>();
-            //List<CRechazado> rechazos = new List<CRechazado>();
-
-            string StringConnection = @"Data Source=localhost;Initial Catalog=EjecicioPOO+BDD;Integrated Security=True;Encrypt=False;Trust Server Certificate=True";
+            string StringConnection = @"Data Source=localhost;Initial Catalog=EjecicioPOO+BDD;Integrated Security=True;Trust Server Certificate=True";
 
             var options = new DbContextOptionsBuilder<DataBaseContext>().UseSqlServer(StringConnection).Options;
 
             var context = new DataBaseContext(options);
 
-            /*var ResultFechaProceso = context.Parametria.FirstOrDefault();
+            var ResultFechaProceso = context.Parametria.FirstOrDefault();
             string fechaFormat = "";
             if (ResultFechaProceso != null )
             {
                 DateTime fecha_proceso = ResultFechaProceso.Fecha_Proceso.Date;
                 fechaFormat = fecha_proceso.ToString("yyyy-MM-dd");
             }
-
+            /*
             try
             {
                 string path = @"C:\Users\miroa\Desktop\cdaCap\EjercicioPOO+BDD\data.txt";
@@ -34,7 +35,7 @@ namespace EjercicioPOO_BDD
 
                 string fecha;
                 string codigo;
-                float venta;
+                decimal venta;
                 string empresa;
                 string fechaConFormato;
                 string motivo;
@@ -45,9 +46,9 @@ namespace EjercicioPOO_BDD
 
                 foreach (string dat in  data) 
                 {
-                    fecha = dat.Substring(0, 8);
+                    fecha = dat.Substring(0, 8).Trim();
                     codigo = dat.Substring(8, 3).Trim();
-                    venta = float.Parse(dat.Substring (11,11));
+                    venta = decimal.Parse(dat.Substring (11,11), CultureInfo.InvariantCulture);
                     empresa = dat.Substring (22);
 
                     fechaConFormato = $"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}";
@@ -63,7 +64,7 @@ namespace EjercicioPOO_BDD
                             {
                                 
                                 aceptado.FechaInforme = DateTime.Parse(fechaConFormato);
-                                aceptado.CodigoVenderdor = codigo;
+                                aceptado.CodigoVendedor = codigo;
                                 aceptado.Venta = venta;
                                 if (empresa.ToUpper() == "S")
                                 {
@@ -127,12 +128,13 @@ namespace EjercicioPOO_BDD
             }
             */
             //PUNTO 4 LISTAR VENDEDORES > 100000
-            var ListaVendedores4 = context.Aceptado.Where(aceptado => aceptado.Venta > 100000.0F)
+            var ListaVendedores4 = context.Aceptado
                                                   .GroupBy(aceptado => aceptado.CodigoVendedor)
+                                                  .Where(aceptado => aceptado.ToList().Sum(s=>s.Venta) >= 100000m)
                                                   .Select(group => new
                                                   {
                                                       CodigoVendedor = group.Key,
-                                                      TotalVentas = group.Sum(aceptado => aceptado.Venta)
+                                                      TotalVentas = group.ToList().Sum(group => group.Venta)
                                                   })
                                                   .ToList();
 
@@ -150,7 +152,7 @@ namespace EjercicioPOO_BDD
                                                      CodigoVendedor = group.Key,
                                                      TotalVentas = group.Sum(aceptado => aceptado.Venta)
                                                  })
-                                                 .Where(resultado => resultado.TotalVentas < 100000.0F)
+                                                 .Where(resultado => resultado.TotalVentas < 100000)
                                          
                                                  .ToList();
 
@@ -162,7 +164,18 @@ namespace EjercicioPOO_BDD
 
             //PUNTO 6 LISTAR VENDEDORES CON ALMENOS UNA EMPRESA GRANDE EN SUS VENTAS
 
+             var ListaVendedoresEmpresaGrande = context.Aceptado
+                                                        .Where(aceptado => aceptado.TamañoEmpresa) // Filtrar solo las ventas a empresas grandes
+                                                        .Select(aceptado => aceptado.CodigoVendedor)
+                                                        .Distinct() // Para obtener códigos de vendedor únicos
+                                                        .ToList();
 
+                    Console.WriteLine("Vendedores que han vendido a una empresa grande:");
+                    foreach (var codigoVendedor in ListaVendedoresEmpresaGrande)
+                    {
+                        Console.WriteLine($"Código de Vendedor: {codigoVendedor}");
+                    }
+                    Console.ReadKey();
 
 
         }

@@ -13,7 +13,7 @@ namespace EjercicioPOO_BDD.Domain
 
         public string CodigoVendedor { get; set; } = string.Empty;
 
-        public double Venta {  get; set; }
+        public decimal Venta {  get; set; }
 
         public bool TamañoEmpresa { get; set; }
 
